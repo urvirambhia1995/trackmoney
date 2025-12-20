@@ -14,6 +14,13 @@ class ExpenseProvider extends ChangeNotifier {
     _expenses.add(expense);
     notifyListeners();
   }
+  void updateExpense(String id, ExpenseModel updatedExpense) {
+    final index = _expenses.indexWhere((e) => e.id == id);
+    if (index != -1) {
+      _expenses[index] = updatedExpense;
+      notifyListeners();
+    }
+  }
 
   void deleteExpense(String id) {
     _expenses.removeWhere((e) => e.id == id);

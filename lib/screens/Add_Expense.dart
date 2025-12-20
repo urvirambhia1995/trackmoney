@@ -5,7 +5,9 @@ import '../providers/expense_providers.dart';
 import '../utils/constants.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  final ExpenseModel? expense;
+
+  const AddExpenseScreen({super.key,this.expense});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -17,6 +19,19 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   String selectedCategory = expenseCategories.first;
   DateTime selectedDate = DateTime.now();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.expense != null) {
+      _titleController.text = widget.expense!.title;
+      _amountController.text = widget.expense!.amount.toString();
+      selectedCategory = widget.expense!.category;
+      selectedDate = widget.expense!.date;
+    }
+
+
+}
 
   @override
   Widget build(BuildContext context) {
@@ -92,24 +107,29 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ElevatedButton(
               onPressed: () {
                 if (_titleController.text.isEmpty ||
-                    _amountController.text.isEmpty) {
-                  return;
-                }
+                    _amountController.text.isEmpty) return;
 
-                final expense = ExpenseModel(
-                  id: DateTime.now().toString(),
+                final newExpense = ExpenseModel(
+                  id: widget.expense?.id ?? DateTime.now().toString(),
                   title: _titleController.text,
                   amount: double.parse(_amountController.text),
                   category: selectedCategory,
                   date: selectedDate,
                 );
 
-                Provider.of<ExpenseProvider>(context, listen: false)
-                    .addExpense(expense);
+                final provider =
+                Provider.of<ExpenseProvider>(context, listen: false);
+
+                if (widget.expense == null) {
+                  provider.addExpense(newExpense);
+                } else {
+                  provider.updateExpense(widget.expense!.id, newExpense);
+                }
 
                 Navigator.pop(context);
               },
-              child: const Text('Save Expense'),
+              child: Text(widget.expense == null ? 'Save Expense' : 'Update Expense'),
+
             ),
 
           ],
